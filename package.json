@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "A battleship game to flex my TDD skills",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint --fix .",
-    "test": "node -w --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "build": "webpack --config webpack.prod.js",
     "watch": "webpack -w --config webpack.dev.js",
     "start": "webpack serve --open --config webpack.dev.js"
