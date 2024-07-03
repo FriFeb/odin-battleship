@@ -9,10 +9,32 @@ describe('gameboard class testing', () => {
     });
   });
 
-  it.only('place ship', () => {
+  it('place ship', () => {
     const gameboard = new Gameboard();
 
     expect(gameboard.placeShip(new Ship(2), [0, 0], 'h')).toBe(true);
+  });
+
+  it('gameboard after placing ship', () => {
+    const gameboard = new Gameboard();
+    gameboard.placeShip(new Ship(2), [0, 0], 'h');
+
+    expect(gameboard.ships).toEqual([
+      {
+        length: 2,
+        hits: 0,
+        shipCoords: [
+          [0, 0],
+          [1, 0],
+        ],
+        outerCircle: [
+          [0, 1],
+          [1, 1],
+          [2, 0],
+          [2, 1],
+        ],
+      },
+    ]);
   });
 
   it('place ship out of bounds', () => {
@@ -51,28 +73,6 @@ describe('gameboard class testing', () => {
     expect(gameboard.placeShip(new Ship(3), [0, 6], 'v')).toBe(false);
   });
 
-  it('gameboard after placing ship', () => {
-    const gameboard = new Gameboard();
-    gameboard.placeShip(new Ship(2), [0, 0], 'h');
-
-    expect(gameboard.ships).toEqual([
-      {
-        length: 2,
-        hits: 0,
-        coordinates: [
-          [0, 0],
-          [1, 0],
-        ],
-        outerCircle: [
-          [0, 1],
-          [1, 1],
-          [2, 1],
-          [2, 2],
-        ],
-      },
-    ]);
-  });
-
   it('gameboard after placing ship out of bounds', () => {
     const gameboard = new Gameboard();
     gameboard.placeShip(new Ship(2), [7, 0], 'h');
@@ -84,6 +84,32 @@ describe('gameboard class testing', () => {
     const gameboard = new Gameboard();
 
     expect(gameboard.getHit([0, 0])).toBe(true);
+  });
+
+  it('gameboard after getting hit', () => {
+    const gameboard = new Gameboard();
+    gameboard.placeShip(new Ship(2), [0, 0], 'h');
+    gameboard.getHit([0, 0]);
+
+    expect(gameboard).toEqual({
+      ships: [
+        {
+          length: 2,
+          hits: 1,
+          shipCoords: [
+            [0, 0],
+            [1, 0],
+          ],
+          outerCircle: [
+            [0, 1],
+            [1, 1],
+            [2, 1],
+            [2, 2],
+          ],
+        },
+      ],
+      hits: [0, 0],
+    });
   });
 
   it('get hit out of bounds', () => {
@@ -110,32 +136,6 @@ describe('gameboard class testing', () => {
     expect(gameboard.getHit([0, 8])).toBe(false);
   });
 
-  it('gameboard after getting hit', () => {
-    const gameboard = new Gameboard();
-    gameboard.placeShip(new Ship(2), [0, 0], 'h');
-    gameboard.getHit([0, 0]);
-
-    expect(gameboard).toEqual({
-      ships: [
-        {
-          length: 2,
-          hits: 1,
-          coordinates: [
-            [0, 0],
-            [1, 0],
-          ],
-          outerCircle: [
-            [0, 1],
-            [1, 1],
-            [2, 1],
-            [2, 2],
-          ],
-        },
-      ],
-      hits: [0, 0],
-    });
-  });
-
   it('gameboard after getting hit out of bounds', () => {
     const gameboard = new Gameboard();
     gameboard.placeShip(new Ship(2), [0, 0], 'h');
@@ -146,7 +146,7 @@ describe('gameboard class testing', () => {
         {
           length: 2,
           hits: 0,
-          coordinates: [
+          shipCoords: [
             [0, 0],
             [1, 0],
           ],
