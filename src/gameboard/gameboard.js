@@ -12,34 +12,56 @@ export class Gameboard {
     });
   }
 
-  _getShipCoords(ship, coords, direction) {
-    const { length } = ship;
-    const [x, y] = coords;
-    const shipCoords = [];
-
-    for (let i = 0; i < length; i++) {
-      switch (direction) {
-        case 'h':
-          shipCoords.push([x + i, y]);
-          break;
-
-        case 'v':
-        default:
-          shipCoords.push([x, y + i]);
-
-          break;
-      }
-    }
-
-    return shipCoords;
-  }
-
-  _isCoordsPairInArray(shipCoords, coordsPair) {
-    return shipCoords.some((coords) => {
+  _isCoordsPairInArray(coordsPair, coordsArray) {
+    return coordsArray.some((coords) => {
       return coords.every((coord, index) => {
         return coord === coordsPair[index];
       });
     });
+  }
+
+  _getUnavailableCoords() {
+    const unavailableCoords = [];
+
+    this.ships.forEach((ship) => {
+      unavailableCoords.push(...ship.shipCoords);
+      unavailableCoords.push(...ship.outerCircle);
+    });
+
+    return unavailableCoords;
+  }
+
+  _isShipCoord(coords) {
+    return this._isCell(coords) &&
+      !this._isCoordsPairInArray(coords, this._getUnavailableCoords())
+      ? true
+      : false;
+  }
+
+  _getShipCoords(ship, coords, direction) {
+    const { length } = ship;
+    const [x, y] = coords;
+    const shipCoords = [];
+    let currentCoords;
+
+    for (let i = 0; i < length; i++) {
+      switch (direction) {
+        case 'h':
+          currentCoords = [x + i, y];
+          break;
+
+        case 'v':
+        default:
+          currentCoords = [x, y + i];
+          break;
+      }
+
+      if (!this._isShipCoord(currentCoords)) return false;
+
+      shipCoords.push(currentCoords);
+    }
+
+    return shipCoords;
   }
 
   _getOuterCircleCoords(shipCoords) {
@@ -53,8 +75,8 @@ export class Gameboard {
           const targetCoords = [i, j];
 
           if (!this._isCell(targetCoords)) continue;
-          if (this._isCoordsPairInArray(shipCoords, targetCoords)) continue;
-          if (this._isCoordsPairInArray(outerCircle, targetCoords)) continue;
+          if (this._isCoordsPairInArray(targetCoords, shipCoords)) continue;
+          if (this._isCoordsPairInArray(targetCoords, outerCircle)) continue;
 
           outerCircle.push(targetCoords);
         }
@@ -68,8 +90,8 @@ export class Gameboard {
     /*
     get ship coords
       if coords out of bounds
-      if coords overlap with another ship coords
-      if coords overlap with another ship outerCircle
+      if coords overlap with other ships coords
+      if coords overlap with other ships outerCircle
         return false
         
     get outerCircle coords
@@ -79,6 +101,8 @@ export class Gameboard {
     */
 
     const shipCoords = this._getShipCoords(ship, coords, direction);
+
+    if (!shipCoords) return false;
 
     const outerCircle = this._getOuterCircleCoords(shipCoords);
 
