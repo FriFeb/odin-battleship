@@ -113,7 +113,32 @@ export class Gameboard {
     return true;
   }
 
-  getHit() {}
+  getHit(coords) {
+    /*
+    if hit out of bounds
+    if hit is the same as in this.hits array
+      return false
+      
+    
+    find the ship on these coords
+    if ship 
+      call ship's getHit method
+    
+    append the hit to this.hits array
+    return true 
+    */
+
+    if (!this._isCell(coords)) return false;
+    if (this._isCoordsPairInArray(coords, this.hits)) return false;
+
+    this.ships.forEach((ship) => {
+      if (this._isCoordsPairInArray(coords, ship.shipCoords)) ship.getHit();
+    });
+
+    this.hits.push(coords);
+
+    return true;
+  }
 
   isGameOver() {}
 }

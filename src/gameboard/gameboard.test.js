@@ -95,27 +95,11 @@ describe('gameboard class testing', () => {
 
   it('gameboard after getting hit', () => {
     const gameboard = new Gameboard();
-    gameboard.placeShip(new Ship(2), [0, 0], 'h');
     gameboard.getHit([0, 0]);
 
     expect(gameboard).toEqual({
-      ships: [
-        {
-          length: 2,
-          hits: 1,
-          shipCoords: [
-            [0, 0],
-            [1, 0],
-          ],
-          outerCircle: [
-            [0, 1],
-            [1, 1],
-            [2, 1],
-            [2, 2],
-          ],
-        },
-      ],
-      hits: [0, 0],
+      ships: [],
+      hits: [[0, 0]],
     });
   });
 
@@ -141,6 +125,32 @@ describe('gameboard class testing', () => {
     const gameboard = new Gameboard();
 
     expect(gameboard.getHit([0, 8])).toBe(false);
+  });
+
+  it('hit ship', () => {
+    const gameboard = new Gameboard();
+    gameboard.placeShip(new Ship(2), [0, 0], 'h');
+    gameboard.getHit([0, 0]);
+
+    expect(gameboard).toEqual({
+      ships: [
+        {
+          length: 2,
+          hits: 1,
+          shipCoords: [
+            [0, 0],
+            [1, 0],
+          ],
+          outerCircle: [
+            [0, 1],
+            [1, 1],
+            [2, 0],
+            [2, 1],
+          ],
+        },
+      ],
+      hits: [[0, 0]],
+    });
   });
 
   it('game over', () => {
