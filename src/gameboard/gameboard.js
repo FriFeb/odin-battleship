@@ -87,19 +87,6 @@ export class Gameboard {
   }
 
   placeShip(ship, coords, direction) {
-    /*
-    get ship coords
-      if coords out of bounds
-      if coords overlap with other ships coords
-      if coords overlap with other ships outerCircle
-        return false
-        
-    get outerCircle coords
-    assign these coords to the ship obj
-    push new ship obj to this.ships array
-    return true
-    */
-
     const shipCoords = this._getShipCoords(ship, coords, direction);
 
     if (!shipCoords) return false;
@@ -114,20 +101,6 @@ export class Gameboard {
   }
 
   getHit(coords) {
-    /*
-    if hit out of bounds
-    if hit is the same as in this.hits array
-      return false
-      
-    
-    find the ship on these coords
-    if ship 
-      call ship's getHit method
-    
-    append the hit to this.hits array
-    return true 
-    */
-
     if (!this._isCell(coords)) return false;
     if (this._isCoordsPairInArray(coords, this.hits)) return false;
 
@@ -140,5 +113,7 @@ export class Gameboard {
     return true;
   }
 
-  isGameOver() {}
+  isGameOver() {
+    return this.ships.every((ship) => ship.isSunk());
+  }
 }
