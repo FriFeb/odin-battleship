@@ -1,0 +1,32 @@
+body {
+  height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+table {
+  border: 1px solid;
+}
+
+td {
+  border: 1px solid;
+  padding: 24px;
+}
+
+.main {
+  height: 100%;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+
+.tables {
+  display: flex;
+  gap: 2rem;
+}
+
+.submit {
+  padding: 8px;
+  font-size: large;
+}
