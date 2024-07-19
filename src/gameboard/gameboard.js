@@ -86,6 +86,19 @@ export class Gameboard {
     return outerCircle;
   }
 
+  getShipsCoords() {
+    const shipsCoords = this.ships.reduce((acc, ship) => {
+      acc.push(ship.shipCoords);
+      return acc;
+    }, []);
+
+    return shipsCoords.flat();
+  }
+
+  getHitsCoords() {
+    return this.hits;
+  }
+
   placeShip(ship, coords, direction) {
     const shipCoords = this._getShipCoords(ship, coords, direction);
 
@@ -105,7 +118,11 @@ export class Gameboard {
     if (this._isCoordsPairInArray(coords, this.hits)) return false;
 
     this.ships.forEach((ship) => {
-      if (this._isCoordsPairInArray(coords, ship.shipCoords)) ship.getHit();
+      if (this._isCoordsPairInArray(coords, ship.shipCoords)) {
+        ship.getHit();
+
+        if (ship.isSunk()) this.hits.push(...ship.outerCircle);
+      }
     });
 
     this.hits.push(coords);
