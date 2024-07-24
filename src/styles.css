@@ -30,3 +30,35 @@ td {
   padding: 8px;
   font-size: large;
 }
+
+.ship {
+  background-color: gray;
+}
+
+.hit {
+  background-color: black;
+  border-radius: 50%;
+  width: 35%;
+  height: 35%;
+  position: absolute;
+  transform: translate(-35%, -35%);
+}
+
+.ship-hit {
+  position: absolute;
+  background-color: grey;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.popup {
+  position: absolute;
+  width: 80%;
+  text-align: center;
+  background: rgb(0 0 0 / 66%);
+  color: white;
+  font-size: xxx-large;
+  top: 10rem;
+}
