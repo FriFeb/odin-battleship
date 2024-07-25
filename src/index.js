@@ -1,16 +1,13 @@
-import { PLAYER_TYPES } from './constants';
+import { GAMEBOARD_SIZE, PLAYER_TYPES } from './constants';
 import { Player } from './player/player';
 import { Ship } from './ship/ship';
 import './styles.css';
 
 /*
-  + hide enemy ships placement
-  + stop hits after real player wins
-  + implement start game button
-  + show winner after game ends
-  - add the ability to place ships randomly
+  - fix start game button
+  - let players shoot again after successfull hit
+  + add the ability to place ships randomly
   - add the ability to place ships manually
-
 */
 
 function isCoordsPairInArray(coordsPair, coordsArray) {
@@ -45,8 +42,8 @@ function proceedGameOver(enemyPlayer, winnerPlayer) {
 }
 
 function getRandomCoords() {
-  const row = Math.floor(Math.random() * 8);
-  const col = Math.floor(Math.random() * 8);
+  const row = Math.floor(Math.random() * GAMEBOARD_SIZE);
+  const col = Math.floor(Math.random() * GAMEBOARD_SIZE);
 
   return [row, col];
 }
@@ -63,7 +60,8 @@ function performPlayerHit(coords) {
 
 function swapPlayerTurn(players) {
   currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
-  enemyPlayer = enemyPlayer === players[1] ? players[0] : players[1];
+  enemyPlayer = enemyPlayer === players[0] ? players[1] : players[0];
+  debugger;
 }
 
 function proceedHits(players, coords) {
@@ -86,11 +84,11 @@ function renderGameboards(players) {
     const table = document.createElement('table');
     table.setAttribute('data-is-enemy-table', index);
 
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < GAMEBOARD_SIZE; i++) {
       const row = document.createElement('tr');
       row.setAttribute('data-row', i);
 
-      for (let j = 0; j < 8; j++) {
+      for (let j = 0; j < GAMEBOARD_SIZE; j++) {
         const col = document.createElement('td');
         col.style.position = 'relative';
         col.setAttribute('data-column', j);
@@ -135,12 +133,14 @@ function renderGameboards(players) {
 }
 
 function addShips(gameboard) {
-  gameboard.placeShip(new Ship(2), [0, 6]);
-  // gameboard.placeShip(new Ship(3), [1, 1]);
-  // gameboard.placeShip(new Ship(2), [4, 4]);
-  // gameboard.placeShip(new Ship(4), [6, 1]);
-  // gameboard.placeShip(new Ship(1), [7, 7]);
-  // gameboard.placeShip(new Ship(1), [3, 1]);
+  const shipTypes = 4;
+
+  for (let i = 0; i < shipTypes; i++) {
+    for (let j = 0; j <= i; j++) {
+      while (!gameboard.placeShip(new Ship(shipTypes - i), getRandomCoords()))
+        continue;
+    }
+  }
 }
 
 let players = [new Player(0), new Player(1)];
