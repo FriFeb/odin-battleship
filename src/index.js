@@ -4,18 +4,22 @@ import { Ship } from './ship/ship';
 import './styles.css';
 
 /*
-  - fix start game button
+  + add the button to place ships randomly
+  + restrict clicks on the enemy board until game start
+  + hide buttons after the game starts
+  + place ships randomly hor or ver
+  + fix page overflow 
+  - show start new game button after player's wins
+    - after click show shuffle and start game buttons
+    - hide winner popup
   - let players shoot again after successfull hit
-  + add the ability to place ships randomly
-  - add the ability to place ships manually
+  - refactor with eslint
 */
 
 function isCoordsPairInArray(coordsPair, coordsArray) {
-  return coordsArray.some((coords) => {
-    return coords.every((coord, index) => {
-      return coord === coordsPair[index];
-    });
-  });
+  return coordsArray.some((coords) =>
+    coords.every((coord, index) => coord === coordsPair[index])
+  );
 }
 
 function isShipCoord(coordPair, player) {
@@ -37,6 +41,7 @@ function showGameOver(player) {
 function proceedGameOver(enemyPlayer, winnerPlayer) {
   if (enemyPlayer.gameboard.isGameOver()) {
     showGameOver(winnerPlayer);
+    isGameStarted = false;
     return true;
   }
 }
@@ -61,7 +66,6 @@ function performPlayerHit(coords) {
 function swapPlayerTurn(players) {
   currentPlayer = currentPlayer === players[0] ? players[1] : players[0];
   enemyPlayer = enemyPlayer === players[0] ? players[1] : players[0];
-  debugger;
 }
 
 function proceedHits(players, coords) {
@@ -114,7 +118,7 @@ function renderGameboards(players) {
     }
 
     if (!players.some((player) => player.gameboard.isGameOver())) {
-      if (index === 1) {
+      if (index === 1 && isGameStarted) {
         table.addEventListener('click', (event) => {
           const td = event.target.closest('td');
 
@@ -133,35 +137,55 @@ function renderGameboards(players) {
 }
 
 function addShips(gameboard) {
+  gameboard.ships = [];
   const shipTypes = 4;
 
   for (let i = 0; i < shipTypes; i++) {
     for (let j = 0; j <= i; j++) {
-      while (!gameboard.placeShip(new Ship(shipTypes - i), getRandomCoords()))
+      const randomDirection = Math.floor(Math.random() * 2);
+      while (
+        !gameboard.placeShip(
+          new Ship(shipTypes - i),
+          getRandomCoords(),
+          randomDirection
+        )
+      )
         continue;
     }
   }
 }
 
+let isGameStarted = false;
+
 let players = [new Player(0), new Player(1)];
 
-let currentPlayer = players[0],
-  enemyPlayer = players[1];
+let currentPlayer = players[0];
+let enemyPlayer = players[1];
 
 addShips(currentPlayer.gameboard);
 addShips(enemyPlayer.gameboard);
 
 renderGameboards(players);
 
-document.querySelector('button').addEventListener('click', () => {
-  players = [new Player(0), new Player(1)];
-  currentPlayer = players[0];
-  enemyPlayer = players[1];
+document.querySelector('.submit').addEventListener('click', () => {
+  isGameStarted = true;
 
+  // players = [new Player(0), new Player(1)];
+  // currentPlayer = players[0];
+  // enemyPlayer = players[1];
+
+  // addShips(currentPlayer.gameboard);
+  // addShips(enemyPlayer.gameboard);
+
+  renderGameboards(players);
+
+  document.querySelector('.shuffle').hidden = 'true';
+  document.querySelector('.submit').hidden = 'true';
+});
+
+document.querySelector('.shuffle').addEventListener('click', () => {
   addShips(currentPlayer.gameboard);
   addShips(enemyPlayer.gameboard);
 
   renderGameboards(players);
-
-  document.querySelector('.main').lastElementChild.remove();
 });

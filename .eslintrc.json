@@ -16,5 +16,6 @@
         "devDependencies": true
       }
     ]
-  }
+  },
+  "ignorePatterns": ["/dist/", "/*.js", "/src/*/*.test.js"]
 }

@@ -1,4 +1,4 @@
-import { GAMEBOARD_SIZE } from '../constants';
+import { GAMEBOARD_SIZE, SHIP_DIRECTIONS } from '../constants';
 
 export class Gameboard {
   constructor() {
@@ -7,17 +7,13 @@ export class Gameboard {
   }
 
   _isCell(coords) {
-    return coords.every((coord) => {
-      return coord >= 0 && coord < GAMEBOARD_SIZE;
-    });
+    return coords.every((coord) => coord >= 0 && coord < GAMEBOARD_SIZE);
   }
 
   _isCoordsPairInArray(coordsPair, coordsArray) {
-    return coordsArray.some((coords) => {
-      return coords.every((coord, index) => {
-        return coord === coordsPair[index];
-      });
-    });
+    return coordsArray.some((coords) =>
+      coords.every((coord, index) => coord === coordsPair[index])
+    );
   }
 
   _getUnavailableCoords() {
@@ -32,10 +28,10 @@ export class Gameboard {
   }
 
   _isShipCoord(coords) {
-    return this._isCell(coords) &&
+    return !!(
+      this._isCell(coords) &&
       !this._isCoordsPairInArray(coords, this._getUnavailableCoords())
-      ? true
-      : false;
+    );
   }
 
   _getShipCoords(ship, coords, direction) {
@@ -45,12 +41,12 @@ export class Gameboard {
     let currentCoords;
 
     for (let i = 0; i < length; i++) {
-      switch (direction) {
-        case 'h':
+      switch (SHIP_DIRECTIONS[direction]) {
+        case 'horizontal':
           currentCoords = [x + i, y];
           break;
 
-        case 'v':
+        case 'vertical':
         default:
           currentCoords = [x, y + i];
           break;
