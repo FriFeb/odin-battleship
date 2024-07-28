@@ -4,15 +4,11 @@ import { Ship } from './ship/ship';
 import './styles.css';
 
 /*
-  + add the button to place ships randomly
-  + restrict clicks on the enemy board until game start
-  + hide buttons after the game starts
-  + place ships randomly hor or ver
-  + fix page overflow 
+  + let players shoot again after successfull hit
+  - fix shooting bug
   - show start new game button after player's wins
     - after click show shuffle and start game buttons
     - hide winner popup
-  - let players shoot again after successfull hit
   - refactor with eslint
 */
 
@@ -53,14 +49,12 @@ function getRandomCoords() {
   return [row, col];
 }
 
-function performBotHit() {
-  while (!enemyPlayer.gameboard.getHit(getRandomCoords())) continue;
+function performBotHit(coords) {
+  while (!enemyPlayer.gameboard.getHit(coords)) continue;
 }
 
 function performPlayerHit(coords) {
-  const [row, col] = coords;
-
-  return enemyPlayer.gameboard.getHit([row, col]);
+  return enemyPlayer.gameboard.getHit(coords);
 }
 
 function swapPlayerTurn(players) {
@@ -72,9 +66,25 @@ function proceedHits(players, coords) {
   if (!performPlayerHit(coords)) return;
   renderGameboards(players);
   if (proceedGameOver(enemyPlayer, currentPlayer)) return;
+
+  // as long as players hits ships:
+  if (isCoordsPairInArray(coords, enemyPlayer.gameboard.getShipsCoords()))
+    return;
+
   swapPlayerTurn(players);
 
-  performBotHit();
+  let botHitCoords;
+
+  debugger;
+  do {
+    botHitCoords = getRandomCoords();
+    console.log(botHitCoords);
+    performBotHit(botHitCoords);
+  } while (
+    // as long as players hits ships:
+    isCoordsPairInArray(botHitCoords, enemyPlayer.gameboard.getShipsCoords())
+  );
+
   renderGameboards(players);
   proceedGameOver(enemyPlayer, currentPlayer);
   swapPlayerTurn(players);
