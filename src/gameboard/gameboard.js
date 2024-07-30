@@ -1,4 +1,10 @@
-import { GAMEBOARD_SIZE, SHIP_DIRECTIONS } from '../constants';
+import { GAMEBOARD_SIZE } from '../constants';
+import {
+  getOuterCircleCoords,
+  getShipCoords,
+  isCell,
+  isCoordsPairInArray,
+} from '../helpers';
 
 export class Gameboard {
   constructor() {
@@ -6,101 +12,46 @@ export class Gameboard {
     this.hits = [];
   }
 
-  _isCell(coords) {
-    return coords.every((coord) => coord >= 0 && coord < GAMEBOARD_SIZE);
-  }
-
-  _isCoordsPairInArray(coordsPair, coordsArray) {
-    return coordsArray.some((coords) =>
-      coords.every((coord, index) => coord === coordsPair[index])
-    );
-  }
-
-  _getUnavailableCoords() {
-    const unavailableCoords = [];
+  getUnavailableCoords() {
+    const shipsCoords = [];
+    const outerCirclesCoords = [];
 
     this.ships.forEach((ship) => {
-      unavailableCoords.push(...ship.shipCoords);
-      unavailableCoords.push(...ship.outerCircle);
+      shipsCoords.push(...ship.shipCoords);
+      outerCirclesCoords.push(...ship.outerCircle);
     });
 
-    return unavailableCoords;
+    return [shipsCoords, outerCirclesCoords];
   }
 
-  _isShipCoord(coords) {
-    return !!(
-      this._isCell(coords) &&
-      !this._isCoordsPairInArray(coords, this._getUnavailableCoords())
-    );
-  }
+  getAvailableCoords() {
+    const unavailableCoords = this.getUnavailableCoords(this.ships).flat();
+    const availvableCoords = [];
 
-  _getShipCoords(ship, coords, direction) {
-    const { length } = ship;
-    const [x, y] = coords;
-    const shipCoords = [];
-    let currentCoords;
+    for (let i = 0; i < GAMEBOARD_SIZE; i++) {
+      for (let j = 0; j < GAMEBOARD_SIZE; j++) {
+        const currentCoords = [i, j];
 
-    for (let i = 0; i < length; i++) {
-      switch (SHIP_DIRECTIONS[direction]) {
-        case 'horizontal':
-          currentCoords = [x + i, y];
-          break;
+        if (isCoordsPairInArray(currentCoords, unavailableCoords)) continue;
 
-        case 'vertical':
-        default:
-          currentCoords = [x, y + i];
-          break;
+        availvableCoords.push(currentCoords);
       }
-
-      if (!this._isShipCoord(currentCoords)) return false;
-
-      shipCoords.push(currentCoords);
     }
 
-    return shipCoords;
-  }
-
-  _getOuterCircleCoords(shipCoords) {
-    const outerCircle = [];
-
-    shipCoords.forEach((coords) => {
-      const [x, y] = coords;
-
-      for (let i = x - 1; i <= x + 1; i++) {
-        for (let j = y - 1; j <= y + 1; j++) {
-          const targetCoords = [i, j];
-
-          if (!this._isCell(targetCoords)) continue;
-          if (this._isCoordsPairInArray(targetCoords, shipCoords)) continue;
-          if (this._isCoordsPairInArray(targetCoords, outerCircle)) continue;
-
-          outerCircle.push(targetCoords);
-        }
-      }
-    });
-
-    return outerCircle;
-  }
-
-  getShipsCoords() {
-    const shipsCoords = this.ships.reduce((acc, ship) => {
-      acc.push(ship.shipCoords);
-      return acc;
-    }, []);
-
-    return shipsCoords.flat();
-  }
-
-  getHitsCoords() {
-    return this.hits;
+    return availvableCoords;
   }
 
   placeShip(ship, coords, direction) {
-    const shipCoords = this._getShipCoords(ship, coords, direction);
+    const shipCoords = getShipCoords(
+      ship,
+      coords,
+      direction,
+      this.getAvailableCoords()
+    );
 
     if (!shipCoords) return false;
 
-    const outerCircle = this._getOuterCircleCoords(shipCoords);
+    const outerCircle = getOuterCircleCoords(shipCoords);
 
     ship = Object.assign(ship, { shipCoords }, { outerCircle });
 
@@ -110,11 +61,11 @@ export class Gameboard {
   }
 
   getHit(coords) {
-    if (!this._isCell(coords)) return false;
-    if (this._isCoordsPairInArray(coords, this.hits)) return false;
+    if (!isCell(coords)) return false;
+    if (isCoordsPairInArray(coords, this.hits)) return false;
 
     this.ships.forEach((ship) => {
-      if (this._isCoordsPairInArray(coords, ship.shipCoords)) {
+      if (isCoordsPairInArray(coords, ship.shipCoords)) {
         ship.getHit();
 
         if (ship.isSunk()) this.hits.push(...ship.outerCircle);
