@@ -5,7 +5,7 @@ export class Ship {
   }
 
   getHit() {
-    this.hits++;
+    this.hits += 1;
   }
 
   isSunk() {

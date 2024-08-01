@@ -15,7 +15,8 @@
       {
         "devDependencies": true
       }
-    ]
+    ],
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }]
   },
   "ignorePatterns": ["/dist/", "/*.js", "/src/*/*.test.js"]
 }

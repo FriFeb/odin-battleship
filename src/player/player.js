@@ -1,23 +1,65 @@
 import { Gameboard } from '../gameboard/gameboard';
+import { getRandomCoords } from '../helpers';
 
-export class Player {
-  constructor() {
+class Player {
+  constructor(name) {
     this.gameboard = new Gameboard();
+    this.name = name;
+  }
+
+  getName() {
+    return this.name;
   }
 
   getShipsCoords() {
-    const shipsCoords = this.gameboard.ships.reduce((acc, ship) => {
-      acc.push(ship.shipCoords);
-      return acc;
-    }, []);
-
-    return shipsCoords.flat();
+    return this.gameboard.getShipsCoords();
   }
 
   getHitsCoords() {
-    return this.gameboard.hits;
+    return this.gameboard.getHitsCoords();
+  }
+
+  getHit(coords) {
+    return this.gameboard.getHit(coords);
+  }
+
+  placeShip(ship, coords, direction) {
+    return this.gameboard.placeShip(ship, coords, direction);
+  }
+
+  addRandomlyPlacedShips() {
+    this.gameboard.addRandomlyPlacedShips();
+  }
+
+  removeShips() {
+    this.gameboard.removeShips();
+  }
+
+  isGameOver() {
+    return this.gameboard.isGameOver();
   }
 }
 
-// need 2 child classes BotPlayer and HumanPlayer
-// each to have own getHit method
+export class RealPlayer extends Player {
+  constructor() {
+    super('Real');
+  }
+
+  performHit(coords, enemyPlayer) {
+    enemyPlayer.getHit(coords);
+  }
+}
+
+export class ComputerPlayer extends Player {
+  constructor() {
+    super('Computer');
+  }
+
+  performHit(enemyPlayer) {
+    let hitInfo;
+
+    do {
+      hitInfo = enemyPlayer.getHit(getRandomCoords());
+    } while (hitInfo.error || hitInfo.isShipHit);
+  }
+}

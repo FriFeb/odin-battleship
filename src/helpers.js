@@ -1,5 +1,4 @@
 import { GAMEBOARD_SIZE, SHIP_DIRECTIONS } from './constants';
-import { Ship } from './ship/ship';
 
 export function isCell(coords) {
   return coords.every((coord) => coord >= 0 && coord < GAMEBOARD_SIZE);
@@ -32,8 +31,9 @@ export function getShipCoords(ship, coords, direction, availvableCoords) {
     if (
       !isCell(currentCoords) ||
       !isCoordsPairInArray(currentCoords, availvableCoords)
-    )
+    ) {
       return false;
+    }
 
     shipCoords.push(currentCoords);
   }
@@ -51,11 +51,13 @@ export function getOuterCircleCoords(shipCoords) {
       for (let j = y - 1; j <= y + 1; j++) {
         const targetCoords = [i, j];
 
-        if (!isCell(targetCoords)) continue;
-        if (isCoordsPairInArray(targetCoords, shipCoords)) continue;
-        if (isCoordsPairInArray(targetCoords, outerCircle)) continue;
-
-        outerCircle.push(targetCoords);
+        if (
+          isCell(targetCoords) &&
+          !isCoordsPairInArray(targetCoords, shipCoords) &&
+          !isCoordsPairInArray(targetCoords, outerCircle)
+        ) {
+          outerCircle.push(targetCoords);
+        }
       }
     }
   });
@@ -68,29 +70,4 @@ export function getRandomCoords() {
   const col = Math.floor(Math.random() * GAMEBOARD_SIZE);
 
   return [row, col];
-}
-
-export function isGameOver(players) {
-  return players.some((player) => player.gameboard.isGameOver());
-}
-
-export function addRandomlyPlacedShips(gameboard) {
-  gameboard.ships = [];
-  const shipTypes = 4;
-
-  for (let i = 0; i < shipTypes; i++) {
-    for (let j = 0; j <= i; j++) {
-      const currentShipTypeLength = shipTypes - i;
-      const randomDirection = Math.floor(Math.random() * 2);
-
-      while (
-        !gameboard.placeShip(
-          new Ship(currentShipTypeLength),
-          getRandomCoords(),
-          randomDirection
-        )
-      )
-        continue;
-    }
-  }
 }

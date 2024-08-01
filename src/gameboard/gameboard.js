@@ -1,10 +1,12 @@
-import { GAMEBOARD_SIZE } from '../constants';
+import { GAMEBOAED_SHIP_TYPES, GAMEBOARD_SIZE } from '../constants';
 import {
   getOuterCircleCoords,
+  getRandomCoords,
   getShipCoords,
   isCell,
   isCoordsPairInArray,
 } from '../helpers';
+import { Ship } from '../ship/ship';
 
 export class Gameboard {
   constructor() {
@@ -32,13 +34,26 @@ export class Gameboard {
       for (let j = 0; j < GAMEBOARD_SIZE; j++) {
         const currentCoords = [i, j];
 
-        if (isCoordsPairInArray(currentCoords, unavailableCoords)) continue;
-
-        availvableCoords.push(currentCoords);
+        if (!isCoordsPairInArray(currentCoords, unavailableCoords)) {
+          availvableCoords.push(currentCoords);
+        }
       }
     }
 
     return availvableCoords;
+  }
+
+  getShipsCoords() {
+    const shipsCoords = this.ships.reduce((acc, ship) => {
+      acc.push(ship.shipCoords);
+      return acc;
+    }, []);
+
+    return shipsCoords.flat();
+  }
+
+  getHitsCoords() {
+    return this.hits;
   }
 
   placeShip(ship, coords, direction) {
@@ -53,20 +68,49 @@ export class Gameboard {
 
     const outerCircle = getOuterCircleCoords(shipCoords);
 
-    ship = Object.assign(ship, { shipCoords }, { outerCircle });
+    const placedShip = Object.assign(ship, { shipCoords }, { outerCircle });
 
-    this.ships.push(ship);
+    this.ships.push(placedShip);
 
     return true;
   }
 
+  addRandomlyPlacedShips() {
+    for (let i = 0; i < GAMEBOAED_SHIP_TYPES.length; i++) {
+      const currentShipType = GAMEBOAED_SHIP_TYPES[i];
+
+      for (let j = 0; j < currentShipType.count; j++) {
+        const randomDirection = Math.floor(Math.random() * 2);
+
+        let isShipPlaced;
+        do {
+          isShipPlaced = this.placeShip(
+            new Ship(currentShipType.length),
+            getRandomCoords(),
+            randomDirection
+          );
+        } while (!isShipPlaced);
+      }
+    }
+  }
+
+  removeShips() {
+    this.ships = [];
+  }
+
   getHit(coords) {
-    if (!isCell(coords)) return false;
-    if (isCoordsPairInArray(coords, this.hits)) return false;
+    const hitInfo = { error: true, isShipHit: false };
+
+    if (!isCell(coords) || isCoordsPairInArray(coords, this.hits)) {
+      return hitInfo;
+    }
+
+    hitInfo.error = false;
 
     this.ships.forEach((ship) => {
       if (isCoordsPairInArray(coords, ship.shipCoords)) {
         ship.getHit();
+        hitInfo.isShipHit = true;
 
         if (ship.isSunk()) this.hits.push(...ship.outerCircle);
       }
@@ -74,7 +118,7 @@ export class Gameboard {
 
     this.hits.push(coords);
 
-    return true;
+    return hitInfo;
   }
 
   isGameOver() {
