@@ -35,6 +35,10 @@ class Player {
     this.gameboard.removeShips();
   }
 
+  refreshGameboard() {
+    this.gameboard.refreshGameboard();
+  }
+
   isGameOver() {
     return this.gameboard.isGameOver();
   }
@@ -46,7 +50,7 @@ export class RealPlayer extends Player {
   }
 
   performHit(coords, enemyPlayer) {
-    enemyPlayer.getHit(coords);
+    return enemyPlayer.getHit(coords);
   }
 }
 
@@ -60,6 +64,6 @@ export class ComputerPlayer extends Player {
 
     do {
       hitInfo = enemyPlayer.getHit(getRandomCoords());
-    } while (hitInfo.error || hitInfo.isShipHit);
+    } while (hitInfo.error || (hitInfo.isShipHit && !enemyPlayer.isGameOver()));
   }
 }

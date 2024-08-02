@@ -98,6 +98,11 @@ export class Gameboard {
     this.ships = [];
   }
 
+  refreshGameboard() {
+    this.ships = [];
+    this.hits = [];
+  }
+
   getHit(coords) {
     const hitInfo = { error: true, isShipHit: false };
 

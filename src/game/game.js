@@ -1,37 +1,26 @@
 export class Game {
   constructor(firstPlayer, secondPlayer) {
-    // this.players = {
-    //   realPlayer: new RealPlayer(),
-    //   computerPlayer: new ComputerPlayer(),
-    // };
-
-    // this.currentPlayer = this.players.realPlayer;
-    // this.enemyPlayer = this.players.computerPlayer;
-
     this._currentPlayer = firstPlayer;
     this._enemyPlayer = secondPlayer;
-
-    this._isGameStarted = false;
   }
 
-  get isGameStarted() {
-    return this._isGameStarted;
+  get currentPlayer() {
+    return this._currentPlayer;
   }
 
-  set isGameStarted(value) {
-    this._isGameStarted = value;
+  get enemyPlayer() {
+    return this._enemyPlayer;
   }
 
   swapPlayerTurn() {
-    this._currentPlayer =
-      this._currentPlayer === this._currentPlayer
-        ? this._enemyPlayer
-        : this._currentPlayer;
+    const tempPlayer = this._currentPlayer;
+    this._currentPlayer = this._enemyPlayer;
+    this._enemyPlayer = tempPlayer;
+  }
 
-    this._enemyPlayer =
-      this._enemyPlayer === this._currentPlayer
-        ? this._enemyPlayer
-        : this._currentPlayer;
+  refreshGameboard() {
+    this._currentPlayer.refreshGameboard();
+    this._enemyPlayer.refreshGameboard();
   }
 
   shuffleShips() {
@@ -42,10 +31,11 @@ export class Game {
     this._enemyPlayer.addRandomlyPlacedShips();
   }
 
+  isEnemyPlayerLost() {
+    return this._enemyPlayer.isGameOver();
+  }
+
   isGameOver() {
-    // return Array.from(this.players).some((player) =>
-    //   player.gameboard.isGameOver()
-    // );
     return this._currentPlayer.isGameOver() || this._enemyPlayer.isGameOver();
   }
 }

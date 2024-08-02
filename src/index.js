@@ -8,12 +8,12 @@ import './styles.css';
   Game logic:
     + create player subclasses
     + create game class
-    - make the game playable
+    + make the game playable
       + shuffle ships
       + start game
-      - hits
-      - hit after successfull hit
-      - game over
+      + hits
+      + hit after successfull hit
+      + game over
     - refactor
       - eslint
 
@@ -27,57 +27,72 @@ import './styles.css';
 const game = new Game(new RealPlayer(), new ComputerPlayer());
 const startBtn = document.querySelector('.start');
 const shuffleBtn = document.querySelector('.shuffle');
+const startNewGameBtn = document.querySelector('.start-new-game');
 
 function toggleGameButtons() {
   startBtn.hidden = !startBtn.hidden;
   shuffleBtn.hidden = !shuffleBtn.hidden;
 }
 
-// function showGameOver(player) {
-//   const div = document.createElement('div');
-//   div.classList.add('popup');
-//   div.innerHTML = `${PLAYER_TYPES[player.playerTypeIndex]} player wins`;
+function showGameOver() {
+  const div = document.createElement('div');
+  div.classList.add('popup');
+  div.innerHTML = `${game.currentPlayer.name} player wins`;
 
-//   document.querySelector('.main').append(div);
-// }
+  document.querySelector('.main').append(div);
 
-// function proceedGameOver(enemyPlayer, winnerPlayer) {
-//   if (enemyPlayer.gameboard.isGameOver()) {
-//     showGameOver(winnerPlayer);
-//     game.isGameStarted = false;
-//     return true;
-//   }
-// }
-
-function proceedHits(players, coords) {
-  if (!performPlayerHit(coords)) return;
-  renderGameboards(players);
-  if (proceedGameOver(enemyPlayer, currentPlayer)) return;
-
-  // as long as players hits ships:
-  if (isCoordsPairInArray(coords, enemyPlayer.gameboard.getShipsCoords()))
-    return;
-
-  swapPlayerTurn(players);
-
-  let botHitCoords;
-
-  do {
-    botHitCoords = getRandomCoords();
-    performBotHit(botHitCoords);
-  } while (
-    // as long as players hits ships:
-    isCoordsPairInArray(botHitCoords, enemyPlayer.gameboard.getShipsCoords())
-  );
-
-  renderGameboards(players);
-  proceedGameOver(enemyPlayer, currentPlayer);
-  swapPlayerTurn(players);
+  startNewGameBtn.hidden = false;
 }
 
-function renderGameboards(...players) {
+function addEnemyPlayerTableHitListener() {
+  if (!game.isGameOver()) {
+    const enemyPlayerTable = document.querySelector(
+      '[data-is-enemy-table="1"]'
+    );
+
+    enemyPlayerTable.addEventListener('click', (event) => {
+      const td = event.target.closest('td');
+
+      if (!td) return;
+
+      const col = +td.dataset.column;
+      const row = +td.parentElement.dataset.row;
+
+      const hitInfo = game.currentPlayer.performHit(
+        [row, col],
+        game.enemyPlayer
+      );
+
+      if (game.isEnemyPlayerLost()) {
+        renderGameboards();
+        showGameOver();
+        return;
+      }
+
+      if (!hitInfo.error && !hitInfo.isShipHit) {
+        game.swapPlayerTurn();
+
+        game.enemyPlayer.performHit(game.currentPlayer);
+        if (game.isEnemyPlayerLost()) {
+          renderGameboards();
+          showGameOver();
+          return;
+        }
+
+        game.swapPlayerTurn();
+      }
+
+      renderGameboards();
+      addEnemyPlayerTableHitListener();
+    });
+  }
+}
+
+function renderGameboards() {
   const tables = document.querySelector('.tables');
   tables.innerHTML = '';
+
+  const players = [game.currentPlayer, game.enemyPlayer];
 
   players.forEach((player, index) => {
     const table = document.createElement('table');
@@ -103,7 +118,7 @@ function renderGameboards(...players) {
             'beforeend',
             '<svg class="ship-hit" fill="#ff0000" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 94.926 94.926" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <path d="M55.931,47.463L94.306,9.09c0.826-0.827,0.826-2.167,0-2.994L88.833,0.62C88.436,0.224,87.896,0,87.335,0 c-0.562,0-1.101,0.224-1.498,0.62L47.463,38.994L9.089,0.62c-0.795-0.795-2.202-0.794-2.995,0L0.622,6.096 c-0.827,0.827-0.827,2.167,0,2.994l38.374,38.373L0.622,85.836c-0.827,0.827-0.827,2.167,0,2.994l5.473,5.476 c0.397,0.396,0.936,0.62,1.498,0.62s1.1-0.224,1.497-0.62l38.374-38.374l38.374,38.374c0.397,0.396,0.937,0.62,1.498,0.62 s1.101-0.224,1.498-0.62l5.473-5.476c0.826-0.827,0.826-2.167,0-2.994L55.931,47.463z"></path> </g> </g></svg>'
           );
-        } else if (isCoordsPairInArray([i, j], shipsCoords) && index === 0) {
+        } else if (isCoordsPairInArray([i, j], shipsCoords)) {
           col.classList.add('ship');
         } else if (isCoordsPairInArray([i, j], hitsCoords)) {
           const dot = document.createElement('div');
@@ -118,39 +133,29 @@ function renderGameboards(...players) {
       table.append(row);
     }
 
-    if (!game.isGameOver()) {
-      if (game.isGameStarted && index === 1) {
-        table.addEventListener('click', (event) => {
-          const td = event.target.closest('td');
-
-          if (!td) return;
-
-          const col = +td.dataset.column;
-          const row = +td.parentElement.dataset.row;
-
-          proceedHits(players, [row, col]);
-        });
-      }
-    }
-
     tables.append(table);
   });
 }
 
 startBtn.addEventListener('click', () => {
-  game.isGameStarted = true;
-
   toggleGameButtons();
+  addEnemyPlayerTableHitListener();
 });
 
 shuffleBtn.addEventListener('click', () => {
   game.shuffleShips();
+  renderGameboards();
+});
 
-  renderGameboards(game._currentPlayer, game._enemyPlayer);
+startNewGameBtn.addEventListener('click', () => {
+  startNewGameBtn.hidden = true;
+  toggleGameButtons();
+  document.querySelector('.popup').remove();
+
+  game.refreshGameboard();
+  game.shuffleShips();
+  renderGameboards();
 });
 
 game.shuffleShips();
-renderGameboards(game._currentPlayer, game._enemyPlayer);
-
-// render gameboards
-// add event listener to the enemy gameboard
+renderGameboards();
