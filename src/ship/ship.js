@@ -1,14 +1,21 @@
-export class Ship {
+export default class Ship {
+  #hits = 0;
+
+  #length;
+
   constructor(length) {
-    this.length = length;
-    this.hits = 0;
+    this.#length = length;
+  }
+
+  get length() {
+    return this.#length;
   }
 
   getHit() {
-    this.hits += 1;
+    this.#hits += 1;
   }
 
   isSunk() {
-    return this.hits === this.length;
+    return this.#hits === this.#length;
   }
 }

@@ -1,41 +1,45 @@
-export class Game {
+export default class Game {
+  #currentPlayer;
+
+  #enemyPlayer;
+
   constructor(firstPlayer, secondPlayer) {
-    this._currentPlayer = firstPlayer;
-    this._enemyPlayer = secondPlayer;
+    this.#currentPlayer = firstPlayer;
+    this.#enemyPlayer = secondPlayer;
   }
 
   get currentPlayer() {
-    return this._currentPlayer;
+    return this.#currentPlayer;
   }
 
   get enemyPlayer() {
-    return this._enemyPlayer;
+    return this.#enemyPlayer;
+  }
+
+  performCurrentPlayerHit(coords) {
+    return this.#currentPlayer.performHit(this.#enemyPlayer, coords);
   }
 
   swapPlayerTurn() {
-    const tempPlayer = this._currentPlayer;
-    this._currentPlayer = this._enemyPlayer;
-    this._enemyPlayer = tempPlayer;
+    const tempPlayer = this.#currentPlayer;
+    this.#currentPlayer = this.#enemyPlayer;
+    this.#enemyPlayer = tempPlayer;
   }
 
   refreshGameboard() {
-    this._currentPlayer.refreshGameboard();
-    this._enemyPlayer.refreshGameboard();
+    this.#currentPlayer.refreshGameboard();
+    this.#enemyPlayer.refreshGameboard();
   }
 
   shuffleShips() {
-    this._currentPlayer.removeShips();
-    this._enemyPlayer.removeShips();
+    this.#currentPlayer.removeShips();
+    this.#enemyPlayer.removeShips();
 
-    this._currentPlayer.addRandomlyPlacedShips();
-    this._enemyPlayer.addRandomlyPlacedShips();
-  }
-
-  isEnemyPlayerLost() {
-    return this._enemyPlayer.isGameOver();
+    this.#currentPlayer.addRandomlyPlacedShips();
+    this.#enemyPlayer.addRandomlyPlacedShips();
   }
 
   isGameOver() {
-    return this._currentPlayer.isGameOver() || this._enemyPlayer.isGameOver();
+    return this.#currentPlayer.isGameOver() || this.#enemyPlayer.isGameOver();
   }
 }

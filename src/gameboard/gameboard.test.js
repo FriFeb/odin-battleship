@@ -1,5 +1,5 @@
-import { Ship } from '../ship/ship';
-import { Gameboard } from './gameboard';
+import Ship from '../ship/ship';
+import Gameboard from './gameboard';
 
 describe('gameboard class testing', () => {
   it('is gameboard', () => {

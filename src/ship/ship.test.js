@@ -1,4 +1,4 @@
-import { Ship } from './ship';
+import Ship from './ship';
 
 describe('ship class testing', () => {
   it('is ship', () => {

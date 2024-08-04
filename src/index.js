@@ -1,7 +1,8 @@
-import { Game } from './game/game';
+import Game from './game/game';
 import { GAMEBOARD_SIZE } from './constants';
-import { ComputerPlayer, RealPlayer } from './player/player';
-import { getRandomCoords, isCoordsPairInArray } from './helpers';
+import { isCoordsPairInArray } from './helpers';
+import ComputerPlayer from './player/computerPlayer';
+import RealPlayer from './player/realPlayer';
 import './styles.css';
 
 /*
@@ -14,8 +15,9 @@ import './styles.css';
       + hits
       + hit after successfull hit
       + game over
-    - refactor
-      - eslint
+     + refactor
+      + eslint
+    - fix board swap if computer wins
 
   UI:
     - wrap game starting logic in function
@@ -25,6 +27,8 @@ import './styles.css';
 */
 
 const game = new Game(new RealPlayer(), new ComputerPlayer());
+
+const popup = document.querySelector('.popup');
 const startBtn = document.querySelector('.start');
 const shuffleBtn = document.querySelector('.shuffle');
 const startNewGameBtn = document.querySelector('.start-new-game');
@@ -34,58 +38,9 @@ function toggleGameButtons() {
   shuffleBtn.hidden = !shuffleBtn.hidden;
 }
 
-function showGameOver() {
-  const div = document.createElement('div');
-  div.classList.add('popup');
-  div.innerHTML = `${game.currentPlayer.name} player wins`;
-
-  document.querySelector('.main').append(div);
-
-  startNewGameBtn.hidden = false;
-}
-
-function addEnemyPlayerTableHitListener() {
-  if (!game.isGameOver()) {
-    const enemyPlayerTable = document.querySelector(
-      '[data-is-enemy-table="1"]'
-    );
-
-    enemyPlayerTable.addEventListener('click', (event) => {
-      const td = event.target.closest('td');
-
-      if (!td) return;
-
-      const col = +td.dataset.column;
-      const row = +td.parentElement.dataset.row;
-
-      const hitInfo = game.currentPlayer.performHit(
-        [row, col],
-        game.enemyPlayer
-      );
-
-      if (game.isEnemyPlayerLost()) {
-        renderGameboards();
-        showGameOver();
-        return;
-      }
-
-      if (!hitInfo.error && !hitInfo.isShipHit) {
-        game.swapPlayerTurn();
-
-        game.enemyPlayer.performHit(game.currentPlayer);
-        if (game.isEnemyPlayerLost()) {
-          renderGameboards();
-          showGameOver();
-          return;
-        }
-
-        game.swapPlayerTurn();
-      }
-
-      renderGameboards();
-      addEnemyPlayerTableHitListener();
-    });
-  }
+function toggleGameOverElements() {
+  popup.hidden = !popup.hidden;
+  startNewGameBtn.hidden = !startNewGameBtn.hidden;
 }
 
 function renderGameboards() {
@@ -137,6 +92,46 @@ function renderGameboards() {
   });
 }
 
+function isGameOver() {
+  if (!game.isGameOver()) return false;
+
+  renderGameboards();
+  toggleGameOverElements();
+  popup.innerHTML = `${game.currentPlayer.name} player wins`;
+
+  return true;
+}
+
+function addEnemyPlayerTableHitListener() {
+  const enemyPlayerTable = document.querySelector('[data-is-enemy-table="1"]');
+
+  enemyPlayerTable.addEventListener('click', (event) => {
+    const td = event.target.closest('td');
+
+    if (!td) return;
+
+    const col = +td.dataset.column;
+    const row = +td.parentElement.dataset.row;
+
+    const hitInfo = game.performCurrentPlayerHit([row, col]);
+
+    if (isGameOver()) return;
+
+    if (!hitInfo.error && !hitInfo.isShipHit) {
+      game.swapPlayerTurn();
+
+      game.performCurrentPlayerHit();
+
+      if (isGameOver()) return;
+
+      game.swapPlayerTurn();
+    }
+
+    renderGameboards();
+    addEnemyPlayerTableHitListener();
+  });
+}
+
 startBtn.addEventListener('click', () => {
   toggleGameButtons();
   addEnemyPlayerTableHitListener();
@@ -148,9 +143,8 @@ shuffleBtn.addEventListener('click', () => {
 });
 
 startNewGameBtn.addEventListener('click', () => {
-  startNewGameBtn.hidden = true;
+  toggleGameOverElements();
   toggleGameButtons();
-  document.querySelector('.popup').remove();
 
   game.refreshGameboard();
   game.shuffleShips();

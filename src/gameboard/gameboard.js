@@ -6,19 +6,18 @@ import {
   isCell,
   isCoordsPairInArray,
 } from '../helpers';
-import { Ship } from '../ship/ship';
+import Ship from '../ship/ship';
 
-export class Gameboard {
-  constructor() {
-    this.ships = [];
-    this.hits = [];
-  }
+export default class Gameboard {
+  #ships = [];
+
+  #hits = [];
 
   getUnavailableCoords() {
     const shipsCoords = [];
     const outerCirclesCoords = [];
 
-    this.ships.forEach((ship) => {
+    this.#ships.forEach((ship) => {
       shipsCoords.push(...ship.shipCoords);
       outerCirclesCoords.push(...ship.outerCircle);
     });
@@ -27,7 +26,7 @@ export class Gameboard {
   }
 
   getAvailableCoords() {
-    const unavailableCoords = this.getUnavailableCoords(this.ships).flat();
+    const unavailableCoords = this.getUnavailableCoords(this.#ships).flat();
     const availvableCoords = [];
 
     for (let i = 0; i < GAMEBOARD_SIZE; i++) {
@@ -44,7 +43,7 @@ export class Gameboard {
   }
 
   getShipsCoords() {
-    const shipsCoords = this.ships.reduce((acc, ship) => {
+    const shipsCoords = this.#ships.reduce((acc, ship) => {
       acc.push(ship.shipCoords);
       return acc;
     }, []);
@@ -53,7 +52,7 @@ export class Gameboard {
   }
 
   getHitsCoords() {
-    return this.hits;
+    return this.#hits;
   }
 
   placeShip(ship, coords, direction) {
@@ -70,7 +69,7 @@ export class Gameboard {
 
     const placedShip = Object.assign(ship, { shipCoords }, { outerCircle });
 
-    this.ships.push(placedShip);
+    this.#ships.push(placedShip);
 
     return true;
   }
@@ -95,38 +94,38 @@ export class Gameboard {
   }
 
   removeShips() {
-    this.ships = [];
+    this.#ships = [];
   }
 
   refreshGameboard() {
-    this.ships = [];
-    this.hits = [];
+    this.#ships = [];
+    this.#hits = [];
   }
 
   getHit(coords) {
     const hitInfo = { error: true, isShipHit: false };
 
-    if (!isCell(coords) || isCoordsPairInArray(coords, this.hits)) {
+    if (!isCell(coords) || isCoordsPairInArray(coords, this.#hits)) {
       return hitInfo;
     }
 
     hitInfo.error = false;
 
-    this.ships.forEach((ship) => {
+    this.#ships.forEach((ship) => {
       if (isCoordsPairInArray(coords, ship.shipCoords)) {
         ship.getHit();
         hitInfo.isShipHit = true;
 
-        if (ship.isSunk()) this.hits.push(...ship.outerCircle);
+        if (ship.isSunk()) this.#hits.push(...ship.outerCircle);
       }
     });
 
-    this.hits.push(coords);
+    this.#hits.push(coords);
 
     return hitInfo;
   }
 
   isGameOver() {
-    return this.ships.every((ship) => ship.isSunk());
+    return this.#ships.every((ship) => ship.isSunk());
   }
 }
