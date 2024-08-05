@@ -37,10 +37,6 @@ export default class Player {
     this.#gameboard.removeShips();
   }
 
-  refreshGameboard() {
-    this.#gameboard.refreshGameboard();
-  }
-
   isGameOver() {
     return this.#gameboard.isGameOver();
   }

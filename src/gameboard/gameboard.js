@@ -10,7 +10,6 @@ import Ship from '../ship/ship';
 
 export default class Gameboard {
   #ships = [];
-
   #hits = [];
 
   getUnavailableCoords() {
@@ -95,11 +94,6 @@ export default class Gameboard {
 
   removeShips() {
     this.#ships = [];
-  }
-
-  refreshGameboard() {
-    this.#ships = [];
-    this.#hits = [];
   }
 
   getHit(coords) {

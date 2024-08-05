@@ -6,3 +6,5 @@ export const GAMEBOAED_SHIP_TYPES = [
   { length: 2, count: 3 },
   { length: 1, count: 4 },
 ];
+
+// export const GAMEBOAED_SHIP_TYPES = [{ length: 1, count: 1 }];
