@@ -20,22 +20,54 @@ td {
 .main {
   height: 100%;
   display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-end;
   align-items: center;
-  gap: 2rem;
 }
-
 .tables {
   display: flex;
+  gap: 2rem;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.buttons {
+  padding-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
 }
 
 .shuffle,
 .start,
 .start-new-game {
-  padding: 8px;
   font-size: large;
+  font-family: monospace;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: grey;
+  color: white;
+}
+
+.start {
+  background: white;
+  border: 1px solid black;
+  color: black;
+  font-size: x-large;
+}
+
+button {
+  transition: 0.2s;
+  transform: translateY(-5px);
+  box-shadow: 0 5px black;
+}
+
+button:focus-within {
+  transform: translateY(5px);
+  box-shadow: 0 0;
 }
 
 .ship {
@@ -62,9 +94,6 @@ td {
 
 .popup {
   position: absolute;
-  width: 80%;
-  text-align: center;
-  color: black;
   font-size: xxx-large;
   top: 10%;
   font-family: monospace;
