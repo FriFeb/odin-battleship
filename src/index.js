@@ -7,12 +7,13 @@ import './styles.css';
 
 /*
   UI:
-    - style game buttons 
+    + style game buttons 
       + change position
       + color + form styling
-      - add hover/focus etc animations
-    - fix hit dots position
+      + add hover/focus etc animations
+    + fix hit dots position
     + make gameboards' position static when other stuff appears/disappears
+    - make ships' drag and drop system
 */
 
 let game;

@@ -40,9 +40,7 @@ td {
   gap: 2rem;
 }
 
-.shuffle,
-.start,
-.start-new-game {
+button {
   font-size: large;
   font-family: monospace;
   padding: 12px;
@@ -50,24 +48,26 @@ td {
   border: none;
   background: grey;
   color: white;
+  transition: 0.2s;
 }
 
-.start {
+button:hover,
+button:focus {
+  transform: translateY(-3px);
+  box-shadow: 0 3px black;
+}
+
+button:hover:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+.start,
+.start-new-game {
   background: white;
   border: 1px solid black;
   color: black;
   font-size: x-large;
-}
-
-button {
-  transition: 0.2s;
-  transform: translateY(-5px);
-  box-shadow: 0 5px black;
-}
-
-button:focus-within {
-  transform: translateY(5px);
-  box-shadow: 0 0;
 }
 
 .ship {
@@ -77,10 +77,12 @@ button:focus-within {
 .hit {
   background-color: black;
   border-radius: 50%;
-  width: 35%;
-  height: 35%;
+  width: 30%;
+  height: 30%;
   position: absolute;
-  transform: translate(-35%, -35%);
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
 }
 
 .ship-hit {
