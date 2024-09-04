@@ -8,8 +8,12 @@ import './styles.css';
 /*
   UI:
     - make ships' drag and drop system
-    - make computer smarter
-      - render computer hit each time
+    - make bot smarter
+      + implement new bot algorithm
+      + render computer hit each time with a delay
+      + fix not rendering miss when bot hits ship
+      + fix clicks not working when bot misses don't render and bot hits errors
+      - refactor
 */
 
 let game;
@@ -29,11 +33,9 @@ function toggleGameOverElements() {
   startNewGameBtn.hidden = !startNewGameBtn.hidden;
 }
 
-function renderGameboards() {
+export function renderGameboards(players) {
   const tables = document.querySelector('.tables');
   tables.innerHTML = '';
-
-  const players = game.players;
 
   players.forEach((player, index) => {
     const table = document.createElement('table');
@@ -78,20 +80,16 @@ function renderGameboards() {
   });
 }
 
-function isGameOver() {
-  if (!game.isGameOver()) return false;
-
-  renderGameboards();
+function renderGameOver() {
+  renderGameboards(game.players);
   toggleGameOverElements();
   popup.innerHTML = `${game.currentPlayer.name} player wins`;
-
-  return true;
 }
 
 function addEnemyPlayerTableHitListener() {
   const enemyPlayerTable = document.querySelector('[data-is-enemy-table="1"]');
 
-  enemyPlayerTable.addEventListener('click', (event) => {
+  enemyPlayerTable.addEventListener('click', async (event) => {
     const td = event.target.closest('td');
 
     if (!td) return;
@@ -101,19 +99,26 @@ function addEnemyPlayerTableHitListener() {
 
     const hitInfo = game.performCurrentPlayerHit([row, col]);
 
-    if (isGameOver()) return;
+    if (game.isGameOver()) {
+      renderGameOver();
+      return;
+    }
 
+    //miss
     if (!hitInfo.error && !hitInfo.isShipHit) {
       game.swapPlayerTurn();
 
-      game.performCurrentPlayerHit();
+      await game.performCurrentPlayerHit();
 
-      if (isGameOver()) return;
+      if (game.isGameOver()) {
+        renderGameOver();
+        return;
+      }
 
       game.swapPlayerTurn();
     }
 
-    renderGameboards();
+    renderGameboards(game.players);
     addEnemyPlayerTableHitListener();
   });
 }
@@ -122,7 +127,7 @@ function createNewGame() {
   game = new Game(new RealPlayer(), new ComputerPlayer());
 
   game.addShips();
-  renderGameboards();
+  renderGameboards(game.players);
 }
 
 startBtn.addEventListener('click', () => {
@@ -134,7 +139,7 @@ shuffleBtn.addEventListener('click', () => {
   game.removeShips();
   game.addShips();
 
-  renderGameboards();
+  renderGameboards(game.players);
 });
 
 startNewGameBtn.addEventListener('click', () => {

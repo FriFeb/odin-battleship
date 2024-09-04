@@ -1,4 +1,5 @@
-import { getRandomCoords } from '../../helpers';
+import { renderGameboards } from '../..';
+import { delay, getRandomCoords } from '../../helpers';
 import Player from '../player';
 import BotHit from './botHit';
 
@@ -17,9 +18,8 @@ export default class ComputerPlayer extends Player {
     this.#botHit = null;
   }
 
-  performHit(enemyPlayer) {
+  async performHit(enemyPlayer) {
     if (!this.#botHit) {
-      debugger;
       this.#botHit = new BotHit();
 
       this.#hitCoords = getRandomCoords();
@@ -29,9 +29,11 @@ export default class ComputerPlayer extends Player {
       if (this.#hitInfo.isShipHit) {
         this.#botHit.getRandomDirectionToAttack();
         this.#botHit.setCurrentDirectionFirstHitCoords(this.#hitCoords);
+        renderGameboards([enemyPlayer, this]);
+        await delay();
       } else if (this.#hitInfo.error) {
         this.clearData();
-        this.performHit(enemyPlayer);
+        await this.performHit(enemyPlayer);
         return;
       } else {
         this.clearData();
@@ -44,15 +46,17 @@ export default class ComputerPlayer extends Player {
 
       if (this.#hitInfo.isShipHit) {
         this.#botHit.isShipDirectionKnown = true;
+        renderGameboards([enemyPlayer, this]);
+
+        await delay();
       }
 
       if (this.#hitInfo.error) {
         if (this.#botHit.isShipDirectionKnown) {
           if (this.#botHit.isFirstTailEnd) {
             // the ship is sunk
-            debugger;
             this.clearData();
-            this.performHit(enemyPlayer);
+            await this.performHit(enemyPlayer);
             return;
           }
 
@@ -64,7 +68,7 @@ export default class ComputerPlayer extends Player {
           if (this.#errorCount === 4) {
             // the ship is sunk
             this.clearData();
-            this.performHit(enemyPlayer);
+            await this.performHit(enemyPlayer);
             return;
           }
 
@@ -72,12 +76,15 @@ export default class ComputerPlayer extends Player {
         }
       }
 
+      // miss
       if (!this.#hitInfo.error && !this.#hitInfo.isShipHit) {
         if (this.#botHit.isShipDirectionKnown) {
+          debugger;
           this.#botHit.isFirstTailEnd = true;
           this.#botHit.getOppositeDirection();
           return;
         }
+
         this.#botHit.getRandomDirectionToAttack();
         return;
       }
