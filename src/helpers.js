@@ -72,6 +72,10 @@ export function getRandomCoords() {
   return [row, col];
 }
 
+export function getRandomNumberInRange(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 export async function delay(ms = 500) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);

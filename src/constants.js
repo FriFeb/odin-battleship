@@ -7,5 +7,3 @@ export const GAMEBOAED_SHIP_TYPES = [
   { length: 1, count: 4 },
 ];
 export { default as DIRECTIONS } from './player/computerPlayer/directions';
-
-// export const GAMEBOAED_SHIP_TYPES = [{ length: 1, count: 1 }];

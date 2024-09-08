@@ -1,5 +1,6 @@
 class Direction {
   static firstHitCoords;
+
   static hitCoords;
 
   setFirstHitCoords(firstHitCoords) {
@@ -7,7 +8,7 @@ class Direction {
     Direction.hitCoords = firstHitCoords;
   }
 
-  setHitCoordsToBeFirstHitCoords() {
+  restoreHitCoords() {
     Direction.hitCoords = Direction.firstHitCoords;
   }
 }

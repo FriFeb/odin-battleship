@@ -8,12 +8,19 @@ import './styles.css';
 /*
   UI:
     - make ships' drag and drop system
-    - make bot smarter
+    + make bot smarter
       + implement new bot algorithm
       + render computer hit each time with a delay
       + fix not rendering miss when bot hits ship
       + fix clicks not working when bot misses don't render and bot hits errors
-      - refactor
+      + use random direction for botHit
+      + refactor
+        + implement 3 states for gameboard getting hit
+        + fix clicks work on previous hits
+        + prevent extra hit after computer wins
+        + make computerPlayer performHit function DRY
+        + check other modules out
+        + eslint
 */
 
 let game;
@@ -104,8 +111,7 @@ function addEnemyPlayerTableHitListener() {
       return;
     }
 
-    //miss
-    if (!hitInfo.error && !hitInfo.isShipHit) {
+    if (hitInfo.miss) {
       game.swapPlayerTurn();
 
       await game.performCurrentPlayerHit();

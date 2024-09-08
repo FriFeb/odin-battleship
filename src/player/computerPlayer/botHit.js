@@ -1,27 +1,16 @@
 import { DIRECTIONS } from '../../constants';
+import { getRandomNumberInRange } from '../../helpers';
 
 export default class BotHit {
-  // #firstHitCoords;
-  // #currentHitCoords;
-
   #directions = DIRECTIONS;
-  #directionIndex = 0;
+
+  #usedDirections = [];
+
   #currentDirection;
 
   #isShipDirectionKnown;
+
   #isFirstTailEnd;
-
-  // set firstHitCoords(coords) {
-  //   this.#firstHitCoords = coords;
-  // }
-
-  // get currentHitCoords() {
-  //   return this.#currentHitCoords;
-  // }
-
-  // set currentHitCoords(coords) {
-  //   this.#currentHitCoords = coords;
-  // }
 
   get isShipDirectionKnown() {
     return this.#isShipDirectionKnown;
@@ -48,15 +37,19 @@ export default class BotHit {
   }
 
   getRandomDirectionToAttack() {
-    if (this.#currentDirection) {
-      this.#currentDirection.setHitCoordsToBeFirstHitCoords();
-    }
+    if (this.#currentDirection) this.#currentDirection.restoreHitCoords();
 
-    this.#currentDirection = this.#directions[this.#directionIndex];
-    this.#directionIndex++;
+    let randomIndex;
+
+    do {
+      randomIndex = getRandomNumberInRange(0, 3);
+    } while (this.#usedDirections.includes(randomIndex));
+
+    this.#currentDirection = this.#directions[randomIndex];
+    this.#usedDirections.push(randomIndex);
   }
 
-  setCurrentDirectionFirstHitCoords(firstHitCoords) {
+  setFirstHitCoords(firstHitCoords) {
     this.#currentDirection.setFirstHitCoords(firstHitCoords);
   }
 }

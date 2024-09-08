@@ -5,70 +5,80 @@ import BotHit from './botHit';
 
 export default class ComputerPlayer extends Player {
   #botHit;
-  #hitInfo;
+
   #errorCount = 0;
-  #hitCoords;
 
   constructor() {
     super('Computer');
   }
 
-  clearData() {
-    this.#errorCount = 0;
+  clearProperties() {
     this.#botHit = null;
+    this.#errorCount = 0;
+  }
+
+  setFirstTailFound() {
+    this.#botHit.isFirstTailEnd = true;
+    this.#botHit.getOppositeDirection();
+  }
+
+  async performNewHit(enemyPlayer) {
+    this.clearProperties();
+    await this.performHit(enemyPlayer);
   }
 
   async performHit(enemyPlayer) {
     if (!this.#botHit) {
       this.#botHit = new BotHit();
 
-      this.#hitCoords = getRandomCoords();
+      const hitCoords = getRandomCoords();
 
-      this.#hitInfo = enemyPlayer.getHit(this.#hitCoords);
+      const hitInfo = enemyPlayer.getHit(hitCoords);
 
-      if (this.#hitInfo.isShipHit) {
-        this.#botHit.getRandomDirectionToAttack();
-        this.#botHit.setCurrentDirectionFirstHitCoords(this.#hitCoords);
+      if (hitInfo.hit) {
+        if (enemyPlayer.isGameOver()) return;
+
         renderGameboards([enemyPlayer, this]);
+
+        this.#botHit.getRandomDirectionToAttack();
+        this.#botHit.setFirstHitCoords(hitCoords);
+
         await delay();
-      } else if (this.#hitInfo.error) {
-        this.clearData();
-        await this.performHit(enemyPlayer);
+      } else if (hitInfo.error) {
+        await this.performNewHit(enemyPlayer);
         return;
       } else {
-        this.clearData();
+        this.clearProperties();
         return;
       }
     }
 
     while (true) {
-      this.#hitInfo = enemyPlayer.getHit(this.#botHit.getNextCoordsToAttack());
+      const hitInfo = enemyPlayer.getHit(this.#botHit.getNextCoordsToAttack());
 
-      if (this.#hitInfo.isShipHit) {
-        this.#botHit.isShipDirectionKnown = true;
+      if (hitInfo.hit) {
+        if (enemyPlayer.isGameOver()) return;
+
         renderGameboards([enemyPlayer, this]);
+
+        this.#botHit.isShipDirectionKnown = true;
 
         await delay();
       }
 
-      if (this.#hitInfo.error) {
+      if (hitInfo.error) {
         if (this.#botHit.isShipDirectionKnown) {
           if (this.#botHit.isFirstTailEnd) {
-            // the ship is sunk
-            this.clearData();
-            await this.performHit(enemyPlayer);
+            await this.performNewHit(enemyPlayer);
             return;
           }
 
-          this.#botHit.isFirstTailEnd = true;
-          this.#botHit.getOppositeDirection();
+          this.setFirstTailFound();
         } else {
           this.#errorCount++;
 
           if (this.#errorCount === 4) {
-            // the ship is sunk
-            this.clearData();
-            await this.performHit(enemyPlayer);
+            await this.performNewHit(enemyPlayer);
             return;
           }
 
@@ -76,12 +86,9 @@ export default class ComputerPlayer extends Player {
         }
       }
 
-      // miss
-      if (!this.#hitInfo.error && !this.#hitInfo.isShipHit) {
+      if (hitInfo.miss) {
         if (this.#botHit.isShipDirectionKnown) {
-          debugger;
-          this.#botHit.isFirstTailEnd = true;
-          this.#botHit.getOppositeDirection();
+          this.setFirstTailFound();
           return;
         }
 

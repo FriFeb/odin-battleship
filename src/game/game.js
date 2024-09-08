@@ -1,6 +1,8 @@
 export default class Game {
   #players;
+
   #currentPlayer;
+
   #enemyPlayer;
 
   constructor(firstPlayer, secondPlayer) {

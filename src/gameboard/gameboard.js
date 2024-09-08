@@ -10,6 +10,7 @@ import Ship from '../ship/ship';
 
 export default class Gameboard {
   #ships = [];
+
   #hits = [];
 
   getUnavailableCoords() {
@@ -97,18 +98,20 @@ export default class Gameboard {
   }
 
   getHit(coords) {
-    const hitInfo = { error: true, isShipHit: false };
+    const hitInfo = { error: true, hit: false, miss: false };
 
     if (!isCell(coords) || isCoordsPairInArray(coords, this.#hits)) {
       return hitInfo;
     }
 
     hitInfo.error = false;
+    hitInfo.miss = true;
 
     this.#ships.forEach((ship) => {
       if (isCoordsPairInArray(coords, ship.shipCoords)) {
         ship.getHit();
-        hitInfo.isShipHit = true;
+        hitInfo.hit = true;
+        hitInfo.miss = false;
 
         if (ship.isSunk()) this.#hits.push(...ship.outerCircle);
       }
